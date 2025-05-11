@@ -14,7 +14,7 @@ include("SevenSeg.jl")
 
 using .SevenSeg
 
-data_file="digits_noisy"
+data_file="../digits_noisy"
 
 
 

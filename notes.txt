@@ -1,0 +1,58 @@
+results5 is the best
+
+parameters=Parameters(784, 128, 10, 12, 10)
+learningA=5
+learningED=5
+learningLambda=0.95
+bottleN=40
+examplesN=400
+autoN=1200
+epochN=10
+reflectN=15
+
+results7 not bad but this is a low noise example
+
+parameters=Parameters(784, 128, 12, 10, 8)
+learningA=5
+learningED=5
+learningLambda=0.95
+bottleN=40
+examplesN=400
+autoN=1200
+epochN=10
+reflectN=15
+
+simulations with learning rates of 15 doing terrible!
+
+ok something isn't working well 784 - 256 - 10 - 12 - 10 isn't good with b 30 and epochN 10
+
+resultsA2
+c=.18 for epoch 10 784 - 256 - 14 - 12 - 10
+epochN 10 and b 40
+
+not great for 784-128-14-12-10 with epochN 10
+
+terrible for 784 - 128 - 10 - 10 - 10 with epochN 15
+
+
+so the best so far is 784 - 128 - 10 - 12 - 10 with epochN 10 and b 40
+
+resultsC1, a run with 784, 258 128 10 12 10 didn't become expressive
+
+resultsB1, also claims to be unexpressive which is weird because it has c=0.6, it is lR 1, epochN 8 b 40 and 784 - 256 - 14 - 12 - 10 and noisy
+
+resultsB3 no c / little x - no noise but latentN=7
+
+resultsB5 - the classice but lR 1.5 - x 0.12 c 0.19
+
+resultsB6 - also bad despite being very typical, not sure what's gone wrong
+
+resultdD5/6  - looks good early on!
+
+resultsD4 - watch this too
+
+resultsD1 - b64 epoch 30 - slow but some progress
+
+resultsD2 - higher lR - some ok, some no x
+
+resultsD3 - lower lR - some ok but lots no x

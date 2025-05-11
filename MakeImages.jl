@@ -170,11 +170,15 @@ function save_noisy7seg_h5(path::String;
     totalGlyphs=128
     total = totalGlyphs * n_per_digit
     imgs   = Array{Float32}(undef, 28, 28, total)
+    base_imgs   = Array{Float32}(undef, 28, 28, totalGlyphs)
     labels = Vector{Int}(undef, total)
+    base_labels = Vector{Int}(undef, totalGlyphs)
     idx = 1
 
     for d in 1:totalGlyphs
         base = make_7seg(d)
+        base_imgs[:,:,d]=base
+        base_labels[d]=d
         for i in 1:n_per_digit
             img = transform28(base, nSub;
                 mu=mu, rho=rho,
@@ -187,10 +191,16 @@ function save_noisy7seg_h5(path::String;
         end
     end
 
-    h5open(path, "w") do f
+    h5open(path*".h5", "w") do f
         write(f, "imgs",   imgs)
         write(f, "labels", labels)
     end
+    
+    h5open(path*"_base.h5", "w") do f
+        write(f, "imgs",   base_imgs)
+        write(f, "labels", base_labels)
+    end
+    
     println("Saved dataset with $(total) images to `$path`.")
 end
 
@@ -202,6 +212,10 @@ function load_noisy7seg_h5(path::String)
     end
 end
 
+#mu dimming
+#sigma translation
+#rho rotation
 
-filename="digits.h5"
-save_noisy7seg_h5(filename,n_per_digit=100,mu=0.025,sigma=3.0,rho=0.05,nSub=10)
+
+filename="digits_noisy"
+save_noisy7seg_h5(filename,n_per_digit=100,mu=0.03,sigma=4.0,rho=0.05,nSub=10)

@@ -76,7 +76,7 @@ learningLambda=0.95
 bottleN=40
 examplesN=10*bottleN
 autoN=3*examplesN
-genN = 150
+genN = 70
 epochN =   15
 reflectN = 15
 
@@ -400,11 +400,17 @@ end
 # I need to switch to a version where the indices are all that gets shuffled so
 # I can shuffle for each epoch
 
+nGlyphs=20
+zMatrixOne=zeros(Float64, nGlyphs,nLatents)
+zMatrixFive=zeros(Float64, nGlyphs,nLatents)
+zMatrixEight=zeros(Float64, nGlyphs,nLatents)
+recordingStart=50
+
 
 for generation in 1:genN
 
     local bottleDigits
-
+    global nGlyphs,zMatrixOne,zMatrixFive,zMatrixEight,recordingStart
     global shuffleDigits,cBgd,xBgd
     global learningRateA,learningRateED,newImageNumbers
     global file,pairs,supervised,supervised1,parentSignal1, supervised2,parentSignal2, supervised3,parentSignal3
@@ -570,7 +576,7 @@ for generation in 1:genN
 
 
     function save_red_latents(zMatrix::AbstractMatrix{<:Real},
-                          trial::Int, generation::Int;
+                          trial::Int, generation::Int,key::String;
                               scaleX::Int=4, scaleY::Int=10,
                               outdir::AbstractString="images")
         # 1) clamp into [0,1] and upsample
@@ -597,14 +603,18 @@ for generation in 1:genN
 
     # 3) make sure directory exists & save
         mkpath(outdir)
-        path = joinpath(outdir, "latents_five_$(trial)_$(generation).png")
+        path = joinpath(outdir, "latents_$(key)_$(trial)_$(generation).png")
         save(path, out)
     end
     
     #nFives=count(==(5), labels)
 
+
+    scaleX=5
+    scaleY=12
+
+
     #Fives
-    nGlyphs=20
     
     zMatrix=zeros(Float64, nGlyphs,nLatents)
     
@@ -618,18 +628,14 @@ for generation in 1:genN
     end
 
     img_gray = Gray.(zMatrix)
-
-    scaleX=4
-    scaleY=10
     
     big_img = kron(img_gray, fill(1, scaleX, scaleY))
 
-    save_red_latents(zMatrix, trial, generation;
-                 scaleX=5, scaleY=15, outdir="imagesFives")
+    save_red_latents(zMatrix, trial, generation, "five";
+                 scaleX=scaleX, scaleY=scaleY, outdir="imagesFives")
 
 
     #nEights
-    nGlyphs=20
     
     zMatrix=zeros(Float64, nGlyphs,nLatents)
     
@@ -643,18 +649,14 @@ for generation in 1:genN
     end
 
     img_gray = Gray.(zMatrix)
-
-    scaleX=4
-    scaleY=10
     
     big_img = kron(img_gray, fill(1, scaleX, scaleY))
 
-    save_red_latents(zMatrix, trial, generation;
-                 scaleX=5, scaleY=15, outdir="imagesEights")
+    save_red_latents(zMatrix, trial, generation, "eight";
+                 scaleX=scaleX, scaleY=scaleY, outdir="imagesEights")
 
     
     #nOnes
-    nGlyphs=20
     
     zMatrix=zeros(Float64, nGlyphs,nLatents)
     
@@ -668,15 +670,30 @@ for generation in 1:genN
     end
 
     img_gray = Gray.(zMatrix)
-
-    scaleX=4
-    scaleY=10
     
     big_img = kron(img_gray, fill(1, scaleX, scaleY))
 
-    save_red_latents(zMatrix, trial, generation;
-                 scaleX=5, scaleY=15, outdir="imagesOnes")
+    save_red_latents(zMatrix, trial, generation, "one";
+                 scaleX=scaleX, scaleY=scaleY, outdir="imagesOnes")
 
     
+
+    if generation>=recordingStart && generation<recordingStart+nGlyphs
+        z=encoder(base_x[:,5])
+        zMatrixFive[generation-recordingStart+1,:]=z
+        z=encoder(base_x[:,52])
+        zMatrixOne[generation-recordingStart+1,:]=z
+        z=encoder(base_x[:,95])
+        zMatrixEight[generation-recordingStart+1,:]=z
+    end
+
+    if generation==recordingStart+nGlyphs
+        save_red_latents(zMatrixEight, trial, generation, "eightG";
+                         scaleX=scaleX, scaleY=scaleY, outdir="imagesEights")
+        save_red_latents(zMatrixOne, trial, generation, "oneG";
+                         scaleX=scaleX, scaleY=scaleY, outdir="imagesOnes")
+        save_red_latents(zMatrixFive, trial, generation, "fiveG";
+                         scaleX=scaleX, scaleY=scaleY, outdir="imagesFives")
+    end
     
 end

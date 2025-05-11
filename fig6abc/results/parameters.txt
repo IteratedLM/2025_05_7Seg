@@ -1,0 +1,10 @@
+parameters=Parameters(784, 128, 7, 7, 7)
+learningA=5.0
+learningED=5.0
+learningLambda=0.95
+bottleN=40
+examplesN=400
+autoN=1200
+epochN=15
+reflectN=15
+very save_noisy7seg_h5(filename,n_per_digit=100,mu=0.1,sigma=5.0,rho=0.1,nSub=10)
