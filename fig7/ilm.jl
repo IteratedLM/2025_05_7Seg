@@ -82,7 +82,9 @@ reflectN = 15
 
 #comment="noise save_noisy7seg_h5(filename,n_per_digit=100,mu=0.015,sigma=2.0,rho=0.025,nSub=10)\n"
 
-comment="no noise save_noisy7seg_h5(filename,n_per_digit=100,mu=0.005,sigma=0.25,rho=0.025,nSub=10)\n"
+#comment="no noise save_noisy7seg_h5(filename,n_per_digit=100,mu=0.005,sigma=0.25,rho=0.025,nSub=10)\n"
+
+comment=""
 
 open(folder*"/parameters.txt", "w") do parameter_file
     write(parameter_file,"parameters=$parameters\n")
@@ -393,7 +395,13 @@ end
 (supervised2,parentSignal2)=shufflePairs(pairs)
 (supervised3,parentSignal3)=shufflePairs(pairs)
 
-# =========== filestuff ==================
+# =========== seg key ==================
+
+for i in 1:7
+    img=SevenSeg.make_seg(i)
+    filename="imagesSeg/key$(i).png"
+    SevenSeg.save_img(img,filename,20)
+end
 
 # ========== 6. generation loop ==========
 
@@ -405,7 +413,6 @@ zMatrixOne=zeros(Float64, nGlyphs,nLatents)
 zMatrixFive=zeros(Float64, nGlyphs,nLatents)
 zMatrixEight=zeros(Float64, nGlyphs,nLatents)
 recordingStart=50
-
 
 for generation in 1:genN
 
@@ -676,7 +683,26 @@ for generation in 1:genN
     save_red_latents(zMatrix, trial, generation, "one";
                  scaleX=scaleX, scaleY=scaleY, outdir="imagesOnes")
 
+
+    #seg image
+
+    zMatrix=zeros(Int,7,nLatents)
+
+    for i in 1:7
+        img=SevenSeg.make_seg(i)
+        z = Int32.(discretizeLatent(worEncoder(imgEncoder(vec(img)))))
+        zMatrix[i,:]=z
+    end
+
     
+    img_gray = Gray.(zMatrix)
+    
+    big_img = kron(img_gray, fill(1, scaleX, scaleY))
+
+    save_red_latents(zMatrix, trial, generation, "imagesSeg";
+                 scaleX=scaleX, scaleY=scaleY, outdir="imagesSeg")
+
+    #generation image
 
     if generation>=recordingStart && generation<recordingStart+nGlyphs
         z=encoder(base_x[:,5])
